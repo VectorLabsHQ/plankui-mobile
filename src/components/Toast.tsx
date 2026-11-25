@@ -79,6 +79,7 @@ export function ToastProvider({ children, bottomOffset = 0 }: ToastProviderProps
           accessibilityLiveRegion="polite"
           style={{
             position: 'absolute',
+            zIndex: 1000, // above the NavBar (zIndex 10) and any sticky content
             left: 0,
             right: 0,
             alignItems: 'center',

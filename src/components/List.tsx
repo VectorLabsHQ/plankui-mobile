@@ -8,12 +8,16 @@ import { Text } from './Text';
 export type ListSectionProps = { title?: string; footer?: string; children: ReactNode };
 
 /** iOS: inset grouped card with hairlines. Android: full-width rows under an accent label. */
+/** Leading slot width on iOS, so titles line up whether a row has a 30 pt icon or an avatar. */
+const LEAD = 32;
+
 export function ListSection({ title, footer, children }: ListSectionProps) {
   const t = useTheme();
   const android = t.os === 'android';
   const rows = Children.toArray(children).filter(isValidElement);
   return (
-    <View style={{ marginHorizontal: android ? -16 : 0 }}>
+    // Space after each section: iOS groups sit ~32 pt apart, Material lists ~24 dp (with the screen's 16 gap).
+    <View style={{ marginHorizontal: android ? -16 : 0, marginBottom: android ? 8 : 16 }}>
       {title ? (
         <Text
           variant={android ? 'subhead' : 'footnote'}
@@ -31,7 +35,8 @@ export function ListSection({ title, footer, children }: ListSectionProps) {
         {rows.map((row, i) => (
           <Fragment key={row.key ?? i}>
             {row}
-            {i < rows.length - 1 && !android ? <View style={{ height: 0.5, marginLeft: 16, backgroundColor: t.c.rule }} /> : null}
+            {/* iOS insets the hairline to where the row's text starts, past any icon */}
+            {i < rows.length - 1 && !android ? <View style={{ height: 0.5, marginLeft: (row.props as { left?: unknown }).left ? 16 + LEAD + 12 : 16, backgroundColor: t.c.rule }} /> : null}
           </Fragment>
         ))}
         </View>
@@ -67,7 +72,7 @@ export function ListItem({ title, subtitle, left, right, value, onPress, chevron
   const showChevron = !android && (chevron ?? (!!onPress && selected === undefined && !destructive));
   const body = (
     <>
-      {left ? <View style={{ minWidth: 28, alignItems: 'center' }}>{left}</View> : null}
+      {left ? <View style={{ minWidth: android ? 40 : LEAD, alignItems: 'center' }}>{left}</View> : null}
       <View style={{ flex: 1, gap: 2 }}>
         <Text variant="body" style={destructive ? { color: t.c.danger } : null} numberOfLines={1}>
           {title}

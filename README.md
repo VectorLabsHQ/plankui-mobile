@@ -51,8 +51,6 @@ Overlays: Sheet, Dialog, Toast.
 Feedback: Banner, ProgressBar, Spinner, EmptyState.
 Display: Text, Avatar, Badge, Glyph.
 
-SwipeRow, Menu, PinField, Accordion, Tabs, FAB, Skeleton and ActionSheet are part of PlankUI Pro.
-
 Each component picks the platform's own pattern: a centred title or a Material top bar, a round check or a square one, a pill toast or a snackbar. Touch targets are at least 44 pt on iOS and 48 dp on Android, and every control has screen-reader roles and labels.
 
 ## For AI agents
