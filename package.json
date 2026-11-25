@@ -1,5 +1,5 @@
 {
-  "name": "@plankui/native",
+  "name": "plankui-mobile",
   "version": "0.1.0",
   "description": "React Native components that draw iOS patterns on iPhone and Material 3 on Android, with PlankUI themes and styles.",
   "license": "MIT",
@@ -7,9 +7,9 @@
   "homepage": "https://plankui.com/mobile",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/VectorLabsHQ/plankui-native.git"
+    "url": "git+https://github.com/VectorLabsHQ/plankui-mobile.git"
   },
-  "bugs": "https://github.com/VectorLabsHQ/plankui-native/issues",
+  "bugs": "https://github.com/VectorLabsHQ/plankui-mobile/issues",
   "keywords": [
     "react-native",
     "expo",

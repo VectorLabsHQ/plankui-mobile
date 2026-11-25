@@ -9,14 +9,14 @@ Live demo and docs: [plankui.com/mobile](https://plankui.com/mobile)
 In an Expo app:
 
 ```bash
-npx expo install @plankui/native react-native-safe-area-context expo-haptics
+npx expo install plankui-mobile react-native-safe-area-context expo-haptics
 ```
 
 ## Use
 
 ```tsx
 import { useState } from 'react';
-import { PlankProvider, ToastProvider, Screen, NavBar, ListSection, ListItem, Switch } from '@plankui/native';
+import { PlankProvider, ToastProvider, Screen, NavBar, ListSection, ListItem, Switch } from 'plankui-mobile';
 
 export default function App() {
   const [on, setOn] = useState(true);
@@ -59,7 +59,7 @@ Each component picks the platform's own pattern: a centred title or a Material t
 
 Paste this with the screens you want:
 
-> Build this app's screens with PlankUI Mobile (@plankui/native). Wrap the app in PlankProvider and ToastProvider. Every page is a Screen with a NavBar: variant "large" for tab roots, "standard" for pushed screens, "modal" inside sheets. Settings and forms use ListSection with ListItem, Switch and TextField. Use Sheet instead of a custom modal, Toast to confirm, Dialog only before something destructive. Never hard-code colours, radii or sizes: read them from useTheme().
+> Build this app's screens with PlankUI Mobile (plankui-mobile). Wrap the app in PlankProvider and ToastProvider. Every page is a Screen with a NavBar: variant "large" for tab roots, "standard" for pushed screens, "modal" inside sheets. Settings and forms use ListSection with ListItem, Switch and TextField. Use Sheet instead of a custom modal, Toast to confirm, Dialog only before something destructive. Never hard-code colours, radii or sizes: read them from useTheme().
 
 ## Licence
 
