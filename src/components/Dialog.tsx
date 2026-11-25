@@ -1,0 +1,112 @@
+import { useEffect, useRef } from 'react';
+import { Animated, Modal, Pressable, View } from 'react-native';
+import { ND, useTheme } from '../theme';
+import { haptic } from '../haptics';
+import { Text } from './Text';
+
+export type DialogButton = { label: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' };
+
+export type DialogProps = {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  message?: string;
+  /** Up to three. Put the cancel button first; it lands where each platform expects it. */
+  buttons: DialogButton[];
+};
+
+/** Alert dialog. iOS: compact centred card, buttons side by side. Android: Material 3 dialog, text buttons on the right. */
+export function Dialog({ open, onClose, title, message, buttons }: DialogProps) {
+  const t = useTheme();
+  const android = t.os === 'android';
+  const a = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (open) {
+      a.setValue(0);
+      Animated.spring(a, { toValue: 1, useNativeDriver: ND, damping: 20, stiffness: 320 }).start();
+      if (buttons.some((b) => b.style === 'destructive')) haptic('warning');
+    }
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const press = (b: DialogButton) => {
+    onClose();
+    b.onPress?.();
+  };
+  const color = (b: DialogButton) => (b.style === 'destructive' ? t.c.danger : t.c.accent);
+  const cancel = buttons.find((b) => b.style === 'cancel');
+
+  return (
+    <Modal transparent visible={open} animationType="fade" statusBarTranslucent onRequestClose={() => (cancel ? press(cancel) : onClose())}>
+      <View style={{ flex: 1, backgroundColor: t.c.overlay, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <Animated.View
+          accessibilityViewIsModal
+          accessibilityRole="alert"
+          style={{
+            width: android ? '100%' : 270,
+            maxWidth: android ? 560 : 270,
+            minWidth: android ? 280 : undefined,
+            borderRadius: t.look.r(android ? 28 : 14),
+            backgroundColor: t.c.surface,
+            ...(t.look.name === 'brutal' ? { borderWidth: 2, borderColor: t.c.ink } : null),
+            overflow: 'hidden',
+            opacity: a,
+            transform: [{ scale: a.interpolate({ inputRange: [0, 1], outputRange: [1.1, 1] }) }],
+          }}
+        >
+          <View style={{ padding: android ? 24 : 16, paddingBottom: android ? 24 : 16, gap: android ? 16 : 4, alignItems: android ? 'flex-start' : 'center' }}>
+            <Text variant={android ? 'title' : 'headline'} accessibilityRole="header" center={!android}>
+              {title}
+            </Text>
+            {message ? (
+              <Text variant={android ? 'subhead' : 'footnote'} tone={android ? 'ink2' : 'ink'} center={!android}>
+                {message}
+              </Text>
+            ) : null}
+          </View>
+          {android ? (
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingHorizontal: 12, paddingBottom: 20, gap: 4 }}>
+              {buttons.map((b) => (
+                <Pressable
+                  key={b.label}
+                  onPress={() => press(b)}
+                  accessibilityRole="button"
+                  android_ripple={{ color: t.wash(color(b)) }}
+                  style={{ height: 40, minWidth: 48, paddingHorizontal: 12, borderRadius: 20, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}
+                >
+                  <Text variant="subhead" weight="500" style={{ color: color(b) }}>
+                    {b.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          ) : (
+            <View style={{ flexDirection: buttons.length === 2 ? 'row' : 'column', borderTopWidth: 0.5, borderColor: t.c.rule }}>
+              {buttons.map((b, i) => (
+                <Pressable
+                  key={b.label}
+                  onPress={() => press(b)}
+                  accessibilityRole="button"
+                  style={({ pressed }) => ({
+                    flex: buttons.length === 2 ? 1 : undefined,
+                    height: 44,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: pressed ? t.c.fill : 'transparent',
+                    borderLeftWidth: buttons.length === 2 && i ? 0.5 : 0,
+                    borderTopWidth: buttons.length !== 2 && i ? 0.5 : 0,
+                    borderColor: t.c.rule,
+                  })}
+                >
+                  <Text weight={b.style === 'cancel' ? '600' : '400'} style={{ color: color(b) }}>
+                    {b.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          )}
+        </Animated.View>
+      </View>
+    </Modal>
+  );
+}
