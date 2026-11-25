@@ -1,6 +1,6 @@
 {
   "name": "plankui-mobile",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "React Native components that draw iOS patterns on iPhone and Material 3 on Android, with PlankUI themes and styles.",
   "license": "MIT",
   "author": "Vector Labs",

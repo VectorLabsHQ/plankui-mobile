@@ -1,3 +1,4 @@
+'use no memo'; // Animated values are mutated outside render; React Compiler memoisation freezes them.
 import { useRef, useState } from 'react';
 import { PanResponder, View } from 'react-native';
 import { useTheme } from '../theme';

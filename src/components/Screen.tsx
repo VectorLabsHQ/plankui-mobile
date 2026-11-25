@@ -1,3 +1,4 @@
+'use no memo'; // Animated values are mutated outside render; React Compiler memoisation freezes them.
 import { isValidElement, useRef, type ReactNode } from 'react';
 import { Animated, KeyboardAvoidingView, Platform, RefreshControl, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

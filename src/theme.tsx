@@ -1,6 +1,6 @@
 // PlankUI Mobile theme: PlankUI's themes, accents and component styles ("looks") in hex
 // (React Native has no oklch), one hook for colours, platform and type, and a provider.
-import { createContext, useContext, useMemo, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Platform, useColorScheme, type TextStyle, type ViewStyle } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ACCENTS, STATUS, THEMES } from './palettes';
@@ -124,8 +124,12 @@ const MONO = Platform.select({ ios: 'Menlo', android: 'monospace', default: 'ui-
 
 export function PlankProvider({ children, platform, scheme, theme = 'volt', accent, look = 'soft', radius = 1, fonts }: PlankProviderProps) {
   const system = useColorScheme();
+  // On the web a static or server render has no colour scheme, so draw light until mounted, then
+  // follow the device; otherwise hydration keeps the server's light styles under dark colours.
+  const [mounted, setMounted] = useState(Platform.OS !== 'web');
+  useEffect(() => setMounted(true), []);
   const os: OS = platform ?? (Platform.OS === 'android' ? 'android' : 'ios');
-  const sc: Scheme = scheme ?? (system === 'dark' ? 'dark' : 'light');
+  const sc: Scheme = scheme ?? (mounted && system === 'dark' ? 'dark' : 'light');
   const value = useMemo<Theme>(() => {
     const th = THEMES[theme] ?? THEMES.volt;
     const p = th[sc];
