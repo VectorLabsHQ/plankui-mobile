@@ -35,8 +35,10 @@ export function Screen({ children, header, footer, scroll = true, grouped, onRef
   const bar = isValidElement<NavBarProps>(header) ? header.props : null;
   const overlay = bar?.variant === 'transparent';
   const big = hasBigTitle(bar?.variant);
+  // A floating <TabBar> sits over the content, so the content scrolls under it and ends clear of it.
+  const floating = isValidElement<{ floating?: boolean }>(footer) && !!footer.props.floating;
   const bg = grouped && t.os === 'ios' ? t.c.grouped : t.c.bg; // Material lists sit on the plain surface
-  const pad = [{ padding: padded ? 16 : 0, paddingTop: big ? 0 : padded ? 16 : 0, paddingBottom: (footer ? 0 : insets.bottom) + (padded ? 24 : 0), gap: 16 }, contentStyle];
+  const pad = [{ padding: padded ? 16 : 0, paddingTop: big ? 0 : padded ? 16 : 0, paddingBottom: (footer && !floating ? 0 : insets.bottom) + (padded ? 24 : 0) + (floating ? 88 : 0), gap: 16 }, contentStyle];
   const inset = padded ? null : { paddingHorizontal: 16 };
 
   const top = (
@@ -83,7 +85,7 @@ export function Screen({ children, header, footer, scroll = true, grouped, onRef
               {children}
             </View>
           )}
-          {footer}
+          {floating ? <View pointerEvents="box-none" style={{ position: 'absolute', left: 0, right: 0, bottom: 0 }}>{footer}</View> : footer}
         </KeyboardAvoidingView>
         {/* a transparent bar floats over the content (cover images run under it) */}
         {overlay ? <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>{header}</View> : null}
