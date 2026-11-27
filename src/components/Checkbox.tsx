@@ -12,11 +12,10 @@ export type CheckboxProps = {
   disabled?: boolean;
 };
 
-/** iOS: round check (Reminders style). Android: Material 3 square checkbox. The whole row is the target. */
+/** Round check (Reminders style). The whole row is the target. */
 export function Checkbox({ checked, onChange, label, description, disabled }: CheckboxProps) {
   const t = useTheme();
-  const android = t.os === 'android';
-  const size = android ? 18 : 22;
+  const size = 22;
   const brutal = t.look.name === 'brutal';
   return (
     <Pressable
@@ -36,8 +35,8 @@ export function Checkbox({ checked, onChange, label, description, disabled }: Ch
           width: size,
           height: size,
           marginTop: label ? 2 : 0,
-          borderRadius: android ? t.look.r(2) : size / 2,
-          borderWidth: checked && !brutal ? 0 : brutal ? 2 : android ? 2 : 1.5,
+          borderRadius: size / 2,
+          borderWidth: checked && !brutal ? 0 : brutal ? 2 : 1.5,
           borderColor: brutal ? t.c.ink : t.c.edge,
           backgroundColor: checked ? t.c.accent : 'transparent',
           alignItems: 'center',

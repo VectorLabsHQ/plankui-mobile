@@ -15,7 +15,7 @@ export type CardProps = {
 /** A surface in the current look: soft shadow, flat outline, glass, keycap edge or brutal block. */
 export function Card({ children, onPress, accessibilityLabel, padded = true, style }: CardProps) {
   const t = useTheme();
-  const base = [t.look.card, { borderRadius: t.look.r(t.os === 'android' ? 16 : 14), padding: padded ? 16 : 0, gap: 8 }, style];
+  const base = [t.look.card, { borderRadius: t.look.r(14), padding: padded ? 16 : 0, gap: 8 }, style];
   if (!onPress) return <View style={base}>{children}</View>;
   return (
     <Pressable

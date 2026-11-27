@@ -1,4 +1,4 @@
-import { useState, type ComponentRef, type Ref } from 'react';
+import { useState, type ComponentRef, type ReactNode, type Ref } from 'react';
 import { TextInput, View, type StyleProp, type TextInputProps, type TextStyle } from 'react-native';
 import { useTheme } from '../theme';
 import { Text } from './Text';
@@ -9,24 +9,30 @@ export type TextFieldProps = Omit<TextInputProps, 'style'> & {
   /** Shown instead of the hint and read out by screen readers. */
   error?: string;
   inputStyle?: StyleProp<TextStyle>;
+  /** Something inside the field on the right, such as a Show button. */
+  right?: ReactNode;
+  /** Show a "12/200" count under the field (needs maxLength). */
+  counter?: boolean;
   ref?: Ref<ComponentRef<typeof TextInput>>;
 };
 
 /**
- * iOS: filled rounded field. Android: Material outlined field.
+ * Filled rounded field.
  * Label is always visible (placeholders are not labels). Font size stays >= 16 so iOS Safari never zooms.
  */
-export function TextField({ label, hint, error, onFocus, onBlur, editable = true, inputStyle, ref, ...rest }: TextFieldProps) {
+export function TextField({ label, hint, error, onFocus, onBlur, editable = true, inputStyle, right, counter, ref, ...rest }: TextFieldProps) {
   const t = useTheme();
-  const android = t.os === 'android';
   const [focus, setFocus] = useState(false);
-  const edge = error ? t.c.danger : focus ? t.c.accent : android ? t.c.muted : 'transparent';
+  const edge = error ? t.c.danger : focus ? t.c.accent : 'transparent';
+  const showCount = !!counter && rest.maxLength !== undefined;
+  const len = (rest.value ?? rest.defaultValue ?? '').length;
 
   return (
     <View style={{ gap: 6, opacity: editable ? 1 : 0.5 }}>
-      <Text variant={android ? 'subhead' : 'footnote'} tone={error ? 'danger' : focus && android ? 'accent' : 'ink2'} weight="500">
+      <Text variant="footnote" tone={error ? 'danger' : 'ink2'} weight="500">
         {label}
       </Text>
+      <View>
       <TextInput
         ref={ref}
         {...rest}
@@ -46,27 +52,37 @@ export function TextField({ label, hint, error, onFocus, onBlur, editable = true
         }}
         style={[
           {
-            minHeight: android ? 56 : 44,
-            paddingHorizontal: android ? 16 : 12,
+            minHeight: 44,
+            paddingHorizontal: 12,
             paddingVertical: rest.multiline ? 12 : 0,
             fontSize: 16,
             color: t.c.ink,
-            ...(android ? null : t.look.field),
-            borderRadius: t.look.r(android ? 4 : 10),
-            borderWidth: android ? (focus || error ? 2 : 1) : Math.max(1.5, Number(t.look.field.borderWidth ?? 0)),
-            borderColor: error || focus ? edge : android ? (t.look.name === 'brutal' ? t.c.ink : t.c.edge) : (t.look.field.borderColor as string),
-            backgroundColor: android ? 'transparent' : (t.look.field.backgroundColor as string),
+            ...(t.look.field),
+            borderRadius: t.look.r(10),
+            borderWidth: Math.max(1.5, Number(t.look.field.borderWidth ?? 0)),
+            borderColor: error || focus ? edge : (t.look.field.borderColor as string),
+            backgroundColor: (t.look.field.backgroundColor as string),
             textAlignVertical: rest.multiline ? 'top' : 'center',
           },
           // web: the focus ring is drawn by our border
           { outlineStyle: 'none' } as object,
+          right ? { paddingRight: 64 } : null,
           inputStyle,
         ]}
       />
-      {error || hint ? (
-        <Text variant="footnote" tone={error ? 'danger' : 'muted'} accessibilityLiveRegion={error ? 'polite' : 'none'}>
-          {error ?? hint}
-        </Text>
+      {right ? <View style={{ position: 'absolute', right: 4, top: 0, bottom: 0, justifyContent: 'center' }}>{right}</View> : null}
+      </View>
+      {error || hint || showCount ? (
+        <View style={{ flexDirection: 'row', gap: 12 }}>
+          <Text variant="footnote" tone={error ? 'danger' : 'muted'} accessibilityLiveRegion={error ? 'polite' : 'none'} style={{ flex: 1 }}>
+            {error ?? hint}
+          </Text>
+          {showCount ? (
+            <Text variant="footnote" tone={len > rest.maxLength! * 0.9 ? 'danger' : 'muted'} style={{ fontVariant: ['tabular-nums'] }} accessibilityLabel={`${len} of ${rest.maxLength} characters`}>
+              {`${len}/${rest.maxLength}`}
+            </Text>
+          ) : null}
+        </View>
       ) : null}
     </View>
   );

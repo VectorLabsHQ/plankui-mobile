@@ -83,7 +83,7 @@ export function EmptyState({ icon, title, message, action }: EmptyStateProps) {
 /** Hairline between groups of content. */
 export function Divider({ inset = 0, vertical }: { inset?: number; vertical?: boolean }) {
   const t = useTheme();
-  const w = t.look.name === 'brutal' ? 2 : t.os === 'android' ? 1 : 0.5;
+  const w = t.look.name === 'brutal' ? 2 : 0.5;
   const color = t.look.name === 'brutal' ? t.c.ink : t.c.rule;
   return vertical ? <View style={{ width: w, alignSelf: 'stretch', backgroundColor: color }} /> : <View style={{ height: w, marginLeft: inset, backgroundColor: color }} />;
 }

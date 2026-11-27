@@ -20,7 +20,7 @@ export type ProgressBarProps = {
   accessibilityLabel?: string;
 };
 
-/** Linear progress. Thin on iOS, 4 dp with rounded ends on Android. */
+/** Linear progress: a thin track with rounded ends. */
 export function ProgressBar({ value, accessibilityLabel = 'Progress' }: ProgressBarProps) {
   const t = useTheme();
   const reduced = useReducedMotion();
@@ -35,7 +35,7 @@ export function ProgressBar({ value, accessibilityLabel = 'Progress' }: Progress
     return () => loop.stop();
   }, [indeterminate, reduced, a]);
 
-  const h = brutal ? 10 : t.os === 'android' ? 4 : 4;
+  const h = brutal ? 10 : 4;
   return (
     <View
       accessibilityRole="progressbar"
@@ -64,5 +64,5 @@ export function ProgressBar({ value, accessibilityLabel = 'Progress' }: Progress
 /** The platform spinner in the accent colour. */
 export function Spinner({ size = 'small', accessibilityLabel = 'Loading' }: { size?: 'small' | 'large'; accessibilityLabel?: string }) {
   const t = useTheme();
-  return <ActivityIndicator size={size} color={t.os === 'android' ? t.c.accent : t.c.muted} accessibilityLabel={accessibilityLabel} />;
+  return <ActivityIndicator size={size} color={t.c.muted} accessibilityLabel={accessibilityLabel} />;
 }

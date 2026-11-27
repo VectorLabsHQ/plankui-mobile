@@ -20,20 +20,19 @@ export type TabBarProps = {
   value: string;
   onChange: (key: string) => void;
   /**
-   * Floats the bar over the content: an iOS 26 glass capsule, or a Material 3 Expressive
-   * floating toolbar on Android. Pass it as Screen's footer; Screen lets content scroll under it.
+   * Floats the bar over the content as a glass capsule.
+   * Pass it as Screen's footer; Screen lets content scroll under it.
    */
   floating?: boolean;
-  /** Floating only: a round button beside the bar (iOS search tab, Android FAB). */
+  /** Floating only: a round button beside the bar (a search tab or main action). */
   action?: TabBarAction;
 };
 
-/** Bottom tabs. iOS: icons with small labels over a hairline. Android: Material 3 navigation bar with a pill. 3-5 items. */
+/** Bottom tabs: icons with small labels over a hairline. 3-5 items. */
 export function TabBar({ items, value, onChange, floating, action }: TabBarProps) {
   const t = useTheme();
   if (floating) return <FloatingTabBar items={items} value={value} onChange={onChange} action={action} />;
   const insets = useSafeAreaInsets();
-  const android = t.os === 'android';
 
   return (
     <View
@@ -41,15 +40,15 @@ export function TabBar({ items, value, onChange, floating, action }: TabBarProps
       style={{
         flexDirection: 'row',
         paddingBottom: insets.bottom,
-        backgroundColor: android ? t.c.surface : t.c.bg,
-        borderTopWidth: android ? 0 : 0.5,
+        backgroundColor: t.c.bg,
+        borderTopWidth: 0.5,
         borderColor: t.c.rule,
-        elevation: android ? 3 : 0,
+        elevation: 0,
       }}
     >
       {items.map((it) => {
         const on = it.key === value;
-        const color = android ? (on ? t.c.ink : t.c.ink2) : on ? t.c.accent : t.c.muted;
+        const color = on ? t.c.accent : t.c.muted;
         return (
           <Pressable
             key={it.key}
@@ -60,25 +59,25 @@ export function TabBar({ items, value, onChange, floating, action }: TabBarProps
             accessibilityRole="tab"
             accessibilityLabel={it.badge ? `${it.label}, ${typeof it.badge === 'number' ? `${it.badge} new` : 'new'}` : it.label}
             accessibilityState={{ selected: on }}
-            style={{ flex: 1, alignItems: 'center', justifyContent: 'center', height: android ? 80 : 49, gap: android ? 4 : 2, paddingTop: android ? 12 : 6, paddingBottom: android ? 16 : 2 }}
+            style={{ flex: 1, alignItems: 'center', justifyContent: 'center', height: 49, gap: 2, paddingTop: 6, paddingBottom: 2 }}
           >
             <View
               style={{
-                width: android ? 64 : 30,
-                height: android ? 32 : 26,
+                width: 30,
+                height: 26,
                 borderRadius: 16,
                 alignItems: 'center',
                 justifyContent: 'center',
-                backgroundColor: android && on ? t.wash() : 'transparent',
+                backgroundColor: 'transparent',
               }}
             >
-              {it.icon({ focused: on, color, size: android ? 24 : 25 })}
+              {it.icon({ focused: on, color, size: 25 })}
               {it.badge ? (
                 <View
                   style={{
                     position: 'absolute',
-                    top: android ? 2 : -2,
-                    left: android ? 36 : 18,
+                    top: -2,
+                    left: 18,
                     minWidth: typeof it.badge === 'number' ? 16 : 8,
                     height: typeof it.badge === 'number' ? 16 : 8,
                     paddingHorizontal: typeof it.badge === 'number' ? 4 : 0,
@@ -97,7 +96,7 @@ export function TabBar({ items, value, onChange, floating, action }: TabBarProps
               ) : null}
             </View>
             <Text
-              style={{ fontSize: android ? 12 : 10, lineHeight: android ? 16 : 12, fontWeight: android ? (on ? '700' : '500') : '500', color }}
+              style={{ fontSize: 10, lineHeight: 12, fontWeight: '500', color }}
               numberOfLines={1}
               maxFontSizeMultiplier={1.3}
             >
@@ -126,32 +125,31 @@ function Dot({ badge, top, left }: { badge: TabItem['badge']; top: number; left:
 }
 
 /**
- * iOS: a capsule with icon-over-label tabs and a soft pill behind the chosen one, plus an optional round
- * search-style button. Android: a pill toolbar where the chosen tab shows icon and label side by side, with a FAB.
+ * A capsule with icon-over-label tabs and a soft pill behind the chosen one, plus an optional round
+ * search-style button.
  * Both use PlankUI's card border and shadow so they sit with the web components. // taste-skill-ignore: the floating bar is a sticky overlay
  */
 function FloatingTabBar({ items, value, onChange, action }: Omit<TabBarProps, 'floating'>) {
   const t = useTheme();
   const insets = useSafeAreaInsets();
-  const android = t.os === 'android';
   const dark = t.scheme === 'dark';
-  const H = android ? 64 : 62;
+  const H = 62;
   const shell = {
     height: H,
     borderRadius: H / 2,
     borderWidth: t.look.name === 'brutal' ? 2 : 1,
     borderColor: t.look.name === 'brutal' ? t.c.ink : t.c.rule2,
-    backgroundColor: android ? t.c.surface : withAlpha(t.c.surface, dark ? 0.72 : 0.78),
+    backgroundColor: withAlpha(t.c.surface, dark ? 0.72 : 0.78),
     boxShadow: `0 10px 30px -10px rgba(0,0,0,${dark ? 0.6 : 0.22})`,
     // web: real glass behind the capsule (native shows the translucent fill)
-    ...(android ? null : ({ backdropFilter: 'blur(20px) saturate(180%)', WebkitBackdropFilter: 'blur(20px) saturate(180%)' } as object)),
+    ...(({ backdropFilter: 'blur(20px) saturate(180%)', WebkitBackdropFilter: 'blur(20px) saturate(180%)' } as object)),
   };
   return (
-    <View pointerEvents="box-none" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: android ? 12 : 10, paddingHorizontal: 16, paddingBottom: Math.max(insets.bottom, 16) }}>
-      <View accessibilityRole="tablist" style={[shell, android ? { flexShrink: 1 } : { flex: 1 }, { flexDirection: 'row', alignItems: 'center', padding: 4, gap: android ? 4 : 0 }]}>
+    <View pointerEvents="box-none" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, paddingHorizontal: 16, paddingBottom: Math.max(insets.bottom, 16) }}>
+      <View accessibilityRole="tablist" style={[shell, { flex: 1 }, { flexDirection: 'row', alignItems: 'center', padding: 4, gap: 0 }]}>
         {items.map((it) => {
           const on = it.key === value;
-          const color = on ? (android ? t.c.ink : t.c.accent) : android ? t.c.ink2 : t.c.ink;
+          const color = on ? (t.c.accent) : t.c.ink;
           return (
             <Pressable
               key={it.key}
@@ -163,27 +161,27 @@ function FloatingTabBar({ items, value, onChange, action }: Omit<TabBarProps, 'f
               accessibilityLabel={it.badge ? `${it.label}, ${typeof it.badge === 'number' ? `${it.badge} new` : 'new'}` : it.label}
               accessibilityState={{ selected: on }}
               style={({ pressed }) => ({
-                ...(android ? null : { flex: 1 }),
+                ...({ flex: 1 }),
                 height: H - 10,
-                minWidth: android ? 56 : undefined,
-                paddingHorizontal: android ? 16 : 0,
+                minWidth: undefined,
+                paddingHorizontal: 0,
                 borderRadius: (H - 10) / 2,
-                flexDirection: android ? 'row' : 'column',
+                flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: android ? 8 : 1,
-                backgroundColor: on ? (android ? t.wash() : t.c.fill) : pressed ? t.wash(t.c.ink) : 'transparent',
+                gap: 1,
+                backgroundColor: on ? (t.c.fill) : pressed ? t.wash(t.c.ink) : 'transparent',
               })}
             >
               <View>
-                {it.icon({ focused: on, color, size: android ? 24 : 24 })}
-                <Dot badge={it.badge} top={-3} left={android ? 16 : 15} />
+                {it.icon({ focused: on, color, size: 24 })}
+                <Dot badge={it.badge} top={-3} left={15} />
               </View>
-              {!android || on ? (
-                <Text style={{ fontSize: android ? 14 : 10, lineHeight: android ? 20 : 12, fontWeight: android ? '600' : on ? '600' : '500', color }} numberOfLines={1} maxFontSizeMultiplier={1.3}>
+              {(
+                <Text style={{ fontSize: 10, lineHeight: 12, fontWeight: on ? '600' : '500', color }} numberOfLines={1} maxFontSizeMultiplier={1.3}>
                   {it.label}
                 </Text>
-              ) : null}
+              )}
             </Pressable>
           );
         })}
@@ -199,10 +197,10 @@ function FloatingTabBar({ items, value, onChange, action }: Omit<TabBarProps, 'f
           style={({ pressed }) => [
             shell,
             { width: H, alignItems: 'center', justifyContent: 'center', transform: [{ scale: pressed ? 0.94 : 1 }] },
-            android ? { borderRadius: t.look.r(16), borderWidth: 0, backgroundColor: t.c.accent } : null,
+            null,
           ]}
         >
-          {action.icon({ color: android ? t.c.onAccent : t.c.ink, size: 24 })}
+          {action.icon({ color: t.c.ink, size: 24 })}
         </Pressable>
       ) : null}
     </View>

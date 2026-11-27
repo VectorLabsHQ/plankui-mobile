@@ -22,16 +22,16 @@ export type SelectProps = {
 
 /**
  * A field that opens a sheet of options and closes on a pick. Looks like TextField
- * (filled on iOS, outlined on Android) with a chevron, so forms stay one style.
+ * with a chevron, so forms stay one style.
  */
 export function Select({ label, value, options, onChange, placeholder = 'Choose', hint, error, disabled }: SelectProps) {
   const t = useTheme();
-  const android = t.os === 'android';
+  const ripple = t.os === 'android'; // ripple instead of a fade
   const [open, setOpen] = useState(false);
   const current = options.find((o) => o.value === value);
   return (
     <View style={{ gap: 6, opacity: disabled ? 0.5 : 1 }}>
-      <Text variant={android ? 'subhead' : 'footnote'} tone={error ? 'danger' : 'ink2'} weight="500">
+      <Text variant="footnote" tone={error ? 'danger' : 'ink2'} weight="500">
         {label}
       </Text>
       <Pressable
@@ -46,18 +46,18 @@ export function Select({ label, value, options, onChange, placeholder = 'Choose'
         accessibilityState={{ disabled: !!disabled, expanded: open }}
         android_ripple={{ color: t.wash(t.c.ink) }}
         style={({ pressed }) => ({
-          minHeight: android ? 56 : 44,
-          paddingHorizontal: android ? 16 : 12,
+          minHeight: 44,
+          paddingHorizontal: 12,
           flexDirection: 'row',
           alignItems: 'center',
           gap: 8,
           overflow: 'hidden',
-          ...(android ? null : t.look.field),
-          borderRadius: t.look.r(android ? 4 : 10),
-          borderWidth: android ? (error ? 2 : 1) : Math.max(1.5, Number(t.look.field.borderWidth ?? 0)),
-          borderColor: error ? t.c.danger : android ? (t.look.name === 'brutal' ? t.c.ink : t.c.edge) : (t.look.field.borderColor as string),
-          backgroundColor: android ? 'transparent' : (t.look.field.backgroundColor as string),
-          opacity: pressed && !android ? 0.7 : 1,
+          ...(t.look.field),
+          borderRadius: t.look.r(10),
+          borderWidth: Math.max(1.5, Number(t.look.field.borderWidth ?? 0)),
+          borderColor: error ? t.c.danger : (t.look.field.borderColor as string),
+          backgroundColor: (t.look.field.backgroundColor as string),
+          opacity: pressed && !ripple ? 0.7 : 1,
         })}
       >
         <Text style={{ flex: 1, fontSize: 16, color: current ? t.c.ink : t.c.muted }} numberOfLines={1}>

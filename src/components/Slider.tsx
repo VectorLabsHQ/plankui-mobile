@@ -15,12 +15,11 @@ export type SliderProps = {
 };
 
 /**
- * Drag or tap anywhere on the track. iOS: thin track, white thumb. Android: Material 3 thick track and bar handle.
+ * Drag or tap anywhere on the track: thin track, white thumb.
  * Screen readers can swipe up/down to change it by one step.
  */
 export function Slider({ value, onChange, min = 0, max = 100, step = 1, accessibilityLabel, disabled }: SliderProps) {
   const t = useTheme();
-  const android = t.os === 'android';
   const brutal = t.look.name === 'brutal';
   const [w, setW] = useState(0);
   const ref = useRef({ w, min, max, step, onChange, value, x0: 0 });
@@ -51,8 +50,8 @@ export function Slider({ value, onChange, min = 0, max = 100, step = 1, accessib
     }),
   ).current;
 
-  const track = android ? 16 : 4;
-  const thumb = android ? { width: 4, height: 44, borderRadius: 2 } : { width: 28, height: 28, borderRadius: 14 };
+  const track = 4;
+  const thumb = { width: 28, height: 28, borderRadius: 14 };
 
   return (
     <View
@@ -75,8 +74,8 @@ export function Slider({ value, onChange, min = 0, max = 100, step = 1, accessib
           position: 'absolute',
           left: Math.max(0, Math.min(w - thumb.width, frac * w - thumb.width / 2)),
           ...thumb,
-          backgroundColor: android ? t.c.accent : '#ffffff',
-          ...(android ? null : { boxShadow: '0 1px 2px rgba(0,0,0,0.2), 0 3px 8px rgba(0,0,0,0.15)' }),
+          backgroundColor: '#ffffff',
+          ...({ boxShadow: '0 1px 2px rgba(0,0,0,0.2), 0 3px 8px rgba(0,0,0,0.15)' }),
           ...(brutal ? { borderWidth: 2, borderColor: t.c.ink, boxShadow: `2px 2px 0 0 ${t.c.ink}` } : null),
         }}
       />

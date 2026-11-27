@@ -21,7 +21,7 @@ export type ButtonProps = {
 };
 
 /**
- * iOS: rounded rectangle, fades when pressed. Android: Material 3 pill with a ripple.
+ * Rounded rectangle. Fades when pressed (Android shows its ripple instead).
  * Every size keeps a 44 pt / 48 dp touch target (small ones through hitSlop).
  */
 export function Button({
@@ -38,9 +38,9 @@ export function Button({
   style,
 }: ButtonProps) {
   const t = useTheme();
-  const android = t.os === 'android';
+  const ripple = t.os === 'android'; // ripple instead of a fade
   const base = tone === 'danger' ? t.c.danger : t.c.accent;
-  const height = { sm: 32, md: android ? 40 : 44, lg: android ? 48 : 52 }[size];
+  const height = { sm: 32, md: 44, lg: 52 }[size];
   const bg = variant === 'filled' ? base : variant === 'tinted' ? t.wash(base) : 'transparent';
   const fg = variant === 'filled' ? t.c.onAccent : base;
   const off = disabled || loading;
@@ -61,18 +61,18 @@ export function Button({
       style={({ pressed }) => [
         {
           height,
-          paddingHorizontal: variant === 'plain' ? 12 : size === 'sm' ? 14 : android ? 24 : 20,
-          borderRadius: t.look.r(android ? height / 2 : size === 'lg' ? 14 : size === 'sm' ? 8 : 12),
+          paddingHorizontal: variant === 'plain' ? 12 : size === 'sm' ? 14 : 20,
+          borderRadius: t.look.r(size === 'lg' ? 14 : size === 'sm' ? 8 : 12),
           backgroundColor: bg,
           borderWidth: variant === 'outline' ? 1 : 0,
-          borderColor: variant === 'outline' ? (android ? t.c.muted : withAlpha(base, 0.5)) : undefined,
+          borderColor: variant === 'outline' ? (withAlpha(base, 0.5)) : undefined,
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'center',
           gap: 8,
           overflow: 'hidden',
           alignSelf: block ? 'stretch' : 'flex-start',
-          opacity: off ? 0.4 : pressed && !android && t.look.name !== 'keycap' && t.look.name !== 'brutal' ? 0.7 : 1,
+          opacity: off ? 0.4 : pressed && !ripple && t.look.name !== 'keycap' && t.look.name !== 'brutal' ? 0.7 : 1,
         },
         variant === 'filled' && !off ? t.look.button(base, tone === 'danger' ? shade(base, -0.3) : t.c.accentEdge, pressed) : null,
         variant !== 'filled' && variant !== 'plain' && t.look.name === 'brutal' ? { borderWidth: 2, borderColor: t.c.ink } : null,
@@ -81,9 +81,9 @@ export function Button({
     >
       {loading ? <ActivityIndicator color={fg} /> : icon ? <View>{icon}</View> : null}
       <Text
-        variant={size === 'sm' ? 'subhead' : android ? 'subhead' : 'body'}
-        weight={android ? '500' : '600'}
-        style={{ color: fg, letterSpacing: android ? 0.1 : 0 }}
+        variant={size === 'sm' ? 'subhead' : 'body'}
+        weight={'600'}
+        style={{ color: fg, letterSpacing: 0 }}
         numberOfLines={1}
       >
         {children}

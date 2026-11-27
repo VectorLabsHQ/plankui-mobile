@@ -40,18 +40,18 @@ export default function App() {
 - `look`: soft, flat, glass, keycap, brutal
 - `accent`: blue, violet, emerald, vermilion, rose, amber, mono, or any hex colour
 - `radius`: corner multiplier, 0 to 2
-- `platform` and `scheme`: force iOS or Android patterns, light or dark (default: the device)
+- `scheme`: force light or dark (default: the device); `platform` forces iOS or Android behaviour (tap targets, ripple)
 
 ## Components
 
-Navigation: NavBar (standard, center, large, medium, search, transparent, modal), NavBarButton, TabBar, SearchField.
-Inputs: Button, TextField, Checkbox, RadioGroup, Switch, Slider, Stepper, SegmentedControl, Chip, ChipRow.
-Lists and layout: Screen, Card, ListSection, ListItem, Divider.
+Navigation: NavBar (standard, center, large, medium, search, transparent, modal), NavBarButton, TabBar, SearchField, Steps.
+Inputs: Button, IconButton, TextField, PasswordField, TextArea, Select, Checkbox, RadioGroup, Switch, Slider, Stepper, SegmentedControl, Chip, ChipRow, Rating, Calendar.
+Lists and layout: Screen, Card, ListSection, ListItem, DescriptionList, Divider, Carousel, PageControl, Timeline.
 Overlays: Sheet, Dialog, Toast.
-Feedback: Banner, ProgressBar, Spinner, EmptyState.
-Display: Text, Avatar, Badge, Glyph.
+Feedback: Banner, ProgressBar, ProgressCircle, Meter, Spinner, EmptyState.
+Display: Text, Avatar, AvatarGroup, Badge, StatusDot, Glyph, Stat, CountUp, BarList, BarChart, Sparkline, MessageBubble, TypingIndicator.
 
-Each component picks the platform's own pattern: a centred title or a Material top bar, a round check or a square one, a pill toast or a snackbar. Touch targets are at least 44 pt on iOS and 48 dp on Android, and every control has screen-reader roles and labels.
+Every component looks the same on iOS, Android and the web, in PlankUI's own design. Only behaviour follows the platform: touch targets are at least 44 pt on iOS and 48 dp on Android, Android presses show its ripple, and the Android back button closes sheets and dialogs. Every control has screen-reader roles and labels.
 
 ## For AI agents
 

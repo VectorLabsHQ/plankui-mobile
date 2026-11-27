@@ -45,7 +45,7 @@ export type Colors = {
 
 type TypeScale = Record<'largeTitle' | 'title' | 'title2' | 'headline' | 'body' | 'callout' | 'subhead' | 'footnote' | 'caption', TextStyle>;
 
-const iosType: TypeScale = {
+const typeScale: TypeScale = {
   largeTitle: { fontSize: 34, lineHeight: 41, fontWeight: '700' },
   title: { fontSize: 28, lineHeight: 34, fontWeight: '700' },
   title2: { fontSize: 22, lineHeight: 28, fontWeight: '600' },
@@ -57,18 +57,6 @@ const iosType: TypeScale = {
   caption: { fontSize: 12, lineHeight: 16, fontWeight: '400' },
 };
 
-const androidType: TypeScale = {
-  largeTitle: { fontSize: 32, lineHeight: 40, fontWeight: '400' },
-  title: { fontSize: 24, lineHeight: 32, fontWeight: '400' },
-  title2: { fontSize: 22, lineHeight: 28, fontWeight: '400' },
-  headline: { fontSize: 16, lineHeight: 24, fontWeight: '500' },
-  body: { fontSize: 16, lineHeight: 24, fontWeight: '400' },
-  callout: { fontSize: 15, lineHeight: 22, fontWeight: '400' },
-  subhead: { fontSize: 14, lineHeight: 20, fontWeight: '400' },
-  footnote: { fontSize: 12, lineHeight: 16, fontWeight: '400' },
-  caption: { fontSize: 11, lineHeight: 16, fontWeight: '500' },
-};
-
 export type TypeVariant = keyof TypeScale;
 
 export type Look = {
@@ -77,7 +65,7 @@ export type Look = {
   r: (n: number) => number;
   /** Cards, list groups, toasts. */
   card: ViewStyle;
-  /** Text fields on iOS (Android keeps the Material outline, recoloured). */
+  /** Text fields and selects. */
   field: ViewStyle;
   /** Extra style for a filled button of this colour. */
   button: (fill: string, edge: string, pressed: boolean) => ViewStyle;
@@ -104,7 +92,7 @@ const Ctx = createContext<Theme | null>(null);
 
 export type PlankProviderProps = {
   children: ReactNode;
-  /** Force a platform look. Default: the device's own (web gets iOS). */
+  /** Force a platform's behaviour (tap target size, ripple). The look is the same on both. Default: the device's own. */
   platform?: OS;
   /** Force light or dark. Default: the system setting. */
   scheme?: Scheme;
@@ -156,7 +144,7 @@ export function PlankProvider({ children, platform, scheme, theme = 'volt', acce
       theme,
       c,
       look: makeLook(look, c, sc, radius),
-      type: os === 'android' ? androidType : iosType,
+      type: typeScale,
       font: { body: fonts?.body ?? (theme === 'terminal' ? MONO : undefined), display: fonts?.display ?? fonts?.body ?? (theme === 'terminal' ? MONO : undefined) },
       hit: os === 'android' ? 48 : 44,
       wash: (color = c.accent) => withAlpha(color, sc === 'dark' ? 0.24 : 0.12),

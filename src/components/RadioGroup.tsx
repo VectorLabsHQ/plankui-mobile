@@ -13,11 +13,10 @@ export type RadioGroupProps = {
   accessibilityLabel?: string;
 };
 
-/** One choice from a short list. iOS: a checkmark on the chosen row. Android: Material radio buttons. */
+/** One choice from a short list: a checkmark on the chosen row. */
 export function RadioGroup({ options, value, onChange, accessibilityLabel }: RadioGroupProps) {
   const t = useTheme();
-  const android = t.os === 'android';
-  const brutal = t.look.name === 'brutal';
+  const ripple = t.os === 'android'; // ripple instead of a fade
   return (
     <View accessibilityRole="radiogroup" accessibilityLabel={accessibilityLabel}>
       {options.map((o, i) => {
@@ -34,26 +33,21 @@ export function RadioGroup({ options, value, onChange, accessibilityLabel }: Rad
             accessibilityLabel={o.label}
             android_ripple={{ color: t.wash(t.c.ink) }}
             style={({ pressed }) => ({
-              minHeight: android ? 56 : t.hit,
+              minHeight: t.hit,
               paddingVertical: 10,
               flexDirection: 'row',
               alignItems: 'center',
               gap: 16,
-              borderTopWidth: !android && i ? 0.5 : 0,
+              borderTopWidth: i ? 0.5 : 0,
               borderColor: t.c.rule,
-              opacity: pressed && !android ? 0.6 : 1,
+              opacity: pressed && !ripple ? 0.6 : 1,
             })}
           >
-            {android ? (
-              <View style={{ width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: on ? t.c.accent : brutal ? t.c.ink : t.c.edge, alignItems: 'center', justifyContent: 'center' }}>
-                {on ? <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: t.c.accent }} /> : null}
-              </View>
-            ) : null}
             <View style={{ flex: 1, gap: 2 }}>
               <Text>{o.label}</Text>
               {o.description ? <Text variant="subhead" tone="muted">{o.description}</Text> : null}
             </View>
-            {!android && on ? <Glyph name="check" color={t.c.accent} size={18} /> : null}
+            {on ? <Glyph name="check" color={t.c.accent} size={18} /> : null}
           </Pressable>
         );
       })}

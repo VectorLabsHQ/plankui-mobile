@@ -27,18 +27,17 @@ export function useToast(): Show {
 
 export type ToastProviderProps = {
   children: ReactNode;
-  /** Space kept clear at the bottom on Android, e.g. the tab bar height. */
+  /** @deprecated No effect since 0.2: toasts drop from the top on every platform. */
   bottomOffset?: number;
 };
 
 /**
- * iOS: a pill that drops from the top. Android: a Material snackbar at the bottom.
+ * A pill that drops from the top.
  * One at a time; a new toast replaces the old one. Screen readers announce it.
  */
 export function ToastProvider({ children, bottomOffset = 0 }: ToastProviderProps) {
   const t = useTheme();
   const insets = useSafeAreaInsets();
-  const android = t.os === 'android';
   const [toast, setToast] = useState<(ToastOptions & { id: number }) | null>(null);
   const a = useRef(new Animated.Value(0)).current;
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -83,10 +82,10 @@ export function ToastProvider({ children, bottomOffset = 0 }: ToastProviderProps
             left: 0,
             right: 0,
             alignItems: 'center',
-            paddingHorizontal: android ? 12 : 16,
-            ...(android ? { bottom: insets.bottom + bottomOffset + 12 } : { top: insets.top + 8 }),
+            paddingHorizontal: 16,
+            ...({ top: insets.top + 8 }),
             opacity: a,
-            transform: [{ translateY: a.interpolate({ inputRange: [0, 1], outputRange: [android ? 24 : -40, 0] }) }],
+            transform: [{ translateY: a.interpolate({ inputRange: [0, 1], outputRange: [-40, 0] }) }],
           }}
         >
           <View
@@ -94,15 +93,15 @@ export function ToastProvider({ children, bottomOffset = 0 }: ToastProviderProps
               flexDirection: 'row',
               alignItems: 'center',
               gap: 10,
-              width: android ? '100%' : undefined,
+              width: undefined,
               maxWidth: 560,
-              minHeight: android ? 48 : 44,
+              minHeight: 44,
               paddingLeft: 16,
               paddingRight: toast.action ? 6 : 16,
-              ...(android ? null : t.look.card),
-              borderRadius: t.look.r(android ? 4 : 22),
-              backgroundColor: android ? t.c.inverse : t.look.name === 'glass' ? (t.look.card.backgroundColor as string) : t.c.surface,
-              ...(android || t.look.card.borderWidth ? null : { borderWidth: 0.5, borderColor: t.c.rule }),
+              ...(t.look.card),
+              borderRadius: t.look.r(22),
+              backgroundColor: t.look.name === 'glass' ? (t.look.card.backgroundColor as string) : t.c.surface,
+              ...(t.look.card.borderWidth ? null : { borderWidth: 0.5, borderColor: t.c.rule }),
               shadowColor: '#000',
               shadowOpacity: 0.15,
               shadowRadius: 16,
@@ -111,7 +110,7 @@ export function ToastProvider({ children, bottomOffset = 0 }: ToastProviderProps
             }}
           >
             {dot ? <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: dot }} /> : null}
-            <Text variant={android ? 'subhead' : 'subhead'} weight={android ? '400' : '500'} style={{ flexShrink: 1, paddingVertical: 12, color: android ? t.c.onInverse : t.c.ink }}>
+            <Text variant="subhead" weight={'500'} style={{ flexShrink: 1, paddingVertical: 12, color: t.c.ink }}>
               {toast.message}
             </Text>
             {toast.action ? (
@@ -121,9 +120,9 @@ export function ToastProvider({ children, bottomOffset = 0 }: ToastProviderProps
                   hide();
                 }}
                 accessibilityRole="button"
-                style={{ minHeight: t.hit, paddingHorizontal: 10, justifyContent: 'center', marginLeft: android ? 'auto' : 0 }}
+                style={{ minHeight: t.hit, paddingHorizontal: 10, justifyContent: 'center', marginLeft: 0 }}
               >
-                <Text variant="subhead" weight="600" style={{ color: android ? withInverseAccent(t.scheme) : t.c.accent }}>
+                <Text variant="subhead" weight="600" style={{ color: t.c.accent }}>
                   {toast.action.label}
                 </Text>
               </Pressable>
@@ -135,5 +134,3 @@ export function ToastProvider({ children, bottomOffset = 0 }: ToastProviderProps
   );
 }
 
-// Material "inverse primary": a light accent on the dark snackbar, a dark one on the light snackbar.
-const withInverseAccent = (scheme: 'light' | 'dark') => (scheme === 'dark' ? '#1e64ef' : '#9dbcff');

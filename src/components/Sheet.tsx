@@ -22,7 +22,6 @@ export type SheetProps = {
 export function Sheet({ open, onClose, title, children, dismissible = true }: SheetProps) {
   const t = useTheme();
   const insets = useSafeAreaInsets();
-  const android = t.os === 'android';
   const H = Dimensions.get('window').height;
   const [mounted, setMounted] = useState(open);
   const y = useRef(new Animated.Value(H)).current;
@@ -77,21 +76,21 @@ export function Sheet({ open, onClose, title, children, dismissible = true }: Sh
             alignSelf: 'center',
             backgroundColor: t.c.surface,
             ...(t.look.name === 'brutal' ? { borderWidth: 2, borderColor: t.c.ink } : null),
-            borderTopLeftRadius: t.look.r(android ? 28 : 12),
-            borderTopRightRadius: t.look.r(android ? 28 : 12),
+            borderTopLeftRadius: t.look.r(12),
+            borderTopRightRadius: t.look.r(12),
             paddingBottom: Math.max(insets.bottom, 16),
             transform: [{ translateY: y }],
           }}
         >
-          <View {...pan.panHandlers} style={{ ...({ userSelect: 'none' } as object), paddingTop: android ? 16 : 6, paddingBottom: title ? 4 : 12, alignItems: 'center' }}>
-            <View style={{ width: android ? 32 : 36, height: android ? 4 : 5, borderRadius: 3, backgroundColor: t.c.muted, opacity: 0.5 }} />
+          <View {...pan.panHandlers} style={{ ...({ userSelect: 'none' } as object), paddingTop: 6, paddingBottom: title ? 4 : 12, alignItems: 'center' }}>
+            <View style={{ width: 36, height: 5, borderRadius: 3, backgroundColor: t.c.muted, opacity: 0.5 }} />
             {title ? (
-              <Text variant={android ? 'title2' : 'headline'} accessibilityRole="header" style={{ marginTop: android ? 16 : 12, marginBottom: 8, alignSelf: android ? 'flex-start' : 'center', paddingHorizontal: android ? 24 : 16 }}>
+              <Text variant="headline" accessibilityRole="header" style={{ marginTop: 12, marginBottom: 8, alignSelf: 'center', paddingHorizontal: 16 }}>
                 {title}
               </Text>
             ) : null}
           </View>
-          <View style={{ paddingHorizontal: android ? 24 : 16, flexShrink: 1 }}>{children}</View>
+          <View style={{ paddingHorizontal: 16, flexShrink: 1 }}>{children}</View>
         </Animated.View>
       </KeyboardAvoidingView>
     </Modal>

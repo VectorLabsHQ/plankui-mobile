@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, View } from 'react-native';
 import { ND, useTheme } from '../theme';
 import { haptic } from '../haptics';
-import { Glyph } from './Glyph';
 import { Text } from './Text';
 
 export type SegmentedControlProps = {
@@ -13,7 +12,7 @@ export type SegmentedControlProps = {
   accessibilityLabel?: string;
 };
 
-/** iOS: sliding thumb on a grey track. Android: Material 3 segmented buttons with a check. */
+/** Sliding thumb on a grey track. */
 export function SegmentedControl({ options, value, onChange, accessibilityLabel }: SegmentedControlProps) {
   const t = useTheme();
   const [w, setW] = useState(0);
@@ -30,45 +29,7 @@ export function SegmentedControl({ options, value, onChange, accessibilityLabel 
     onChange(i);
   };
 
-  if (t.os === 'android') {
-    return (
-      <View accessibilityRole="radiogroup" accessibilityLabel={accessibilityLabel} style={{ flexDirection: 'row', height: 48, paddingVertical: 4 }}>
-        {options.map((o, i) => {
-          const on = i === value;
-          return (
-            <Pressable
-              key={o}
-              onPress={() => pick(i)}
-              accessibilityRole="radio"
-              accessibilityState={{ checked: on }}
-              android_ripple={{ color: t.wash() }}
-              style={{
-                flex: 1,
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 6,
-                borderWidth: 1,
-                borderColor: t.c.muted,
-                marginLeft: i ? -1 : 0,
-                backgroundColor: on ? t.wash() : 'transparent',
-                borderTopLeftRadius: i === 0 ? 20 : 0,
-                borderBottomLeftRadius: i === 0 ? 20 : 0,
-                borderTopRightRadius: i === options.length - 1 ? 20 : 0,
-                borderBottomRightRadius: i === options.length - 1 ? 20 : 0,
-                overflow: 'hidden',
-              }}
-            >
-              {on ? <Glyph name="check" color={t.c.ink} size={14} /> : null}
-              <Text variant="subhead" weight="500" numberOfLines={1}>
-                {o}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
-    );
-  }
+  
 
   return (
     <View

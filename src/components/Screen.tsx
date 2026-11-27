@@ -37,7 +37,7 @@ export function Screen({ children, header, footer, scroll = true, grouped, onRef
   const big = hasBigTitle(bar?.variant);
   // A floating <TabBar> sits over the content, so the content scrolls under it and ends clear of it.
   const floating = isValidElement<{ floating?: boolean }>(footer) && !!footer.props.floating;
-  const bg = grouped && t.os === 'ios' ? t.c.grouped : t.c.bg; // Material lists sit on the plain surface
+  const bg = grouped ? t.c.grouped : t.c.bg;
   const pad = [{ padding: padded ? 16 : 0, paddingTop: big ? 0 : padded ? 16 : 0, paddingBottom: (footer && !floating ? 0 : insets.bottom) + (padded ? 24 : 0) + (floating ? 88 : 0), gap: 16 }, contentStyle];
   const inset = padded ? null : { paddingHorizontal: 16 };
 

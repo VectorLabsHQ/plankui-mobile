@@ -2,19 +2,19 @@
 import { createContext, useContext, useRef, type ReactNode } from 'react';
 import { Animated, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme, withAlpha } from '../theme';
+import { useTheme } from '../theme';
 import { haptic } from '../haptics';
 import { Glyph, type GlyphName } from './Glyph';
 import { Text } from './Text';
 
 /**
- * standard    iOS inline title / Material small top app bar (title on the left)
- * center      title centred on both platforms (Material center-aligned top app bar)
- * large       iOS large title / Material large top app bar; the big title scrolls into the bar
- * medium      smaller big title (Material medium top app bar; iOS large)
+ * standard    inline title in the bar
+ * center      title centred in the bar
+ * large       large title; the big title scrolls into the bar
+ * medium      smaller big title that scrolls into the bar
  * search      large title with a search field under it
  * transparent floats over a cover image; buttons sit on round chips, the bar fills in as you scroll
- * modal       for sheets and full-screen forms: Cancel / Done (iOS), close + Save (Android)
+ * modal       for sheets and full-screen forms: Cancel / Done
  */
 export type NavBarVariant = 'standard' | 'center' | 'large' | 'medium' | 'search' | 'transparent' | 'modal';
 
@@ -50,26 +50,25 @@ export function NavBar({ title, subtitle, variant = 'standard', onBack, backLabe
   const insets = useSafeAreaInsets();
   const fallback = useRef(new Animated.Value(0)).current;
   const y = useContext(ScrollY) ?? fallback;
-  const android = t.os === 'android';
   const clear = variant === 'transparent';
   const big = hasBigTitle(variant);
-  const bg = grouped && !android ? t.c.grouped : t.c.bg;
+  const bg = grouped ? t.c.grouped : t.c.bg;
 
   // When the bar's own title shows: always, or once the big title / cover has scrolled under the bar.
   const titleIn = big ? y.interpolate({ inputRange: [28, 44], outputRange: [0, 1], extrapolate: 'clamp' })
     : clear ? y.interpolate({ inputRange: [140, 180], outputRange: [0, 1], extrapolate: 'clamp' })
     : 1;
-  // iOS: hairline once content is under the bar. Android: surface tint once content is under the bar.
+  // A hairline once content is under the bar.
   const scrolled = y.interpolate({ inputRange: big ? [40, 52] : clear ? [150, 190] : [0, 8], outputRange: [0, 1], extrapolate: 'clamp' });
 
-  const centred = !android || variant === 'center';
-  const top = variant === 'modal' && !android ? 0 : insets.top; // iOS modals are page sheets: no status bar inset
+  const centred = true;
+  const top = variant === 'modal' ? 0 : insets.top; // iOS modals are page sheets: no status bar inset
 
   const back = onBack ? (
     <NavBarButton
-      icon={android ? 'arrow-left' : 'chevron-left'}
-      label={!android && !clear ? backLabel : undefined}
-      accessibilityLabel={android ? 'Navigate up' : backLabel}
+      icon={'chevron-left'}
+      label={!clear ? backLabel : undefined}
+      accessibilityLabel={backLabel}
       onPress={onBack}
       back
     />
@@ -77,7 +76,7 @@ export function NavBar({ title, subtitle, variant = 'standard', onBack, backLabe
 
   const titleBlock = (
     <Animated.View style={{ opacity: titleIn, alignItems: centred ? 'center' : 'flex-start', flexShrink: 1 }}>
-      <Text variant={android && !centred ? 'title2' : 'headline'} numberOfLines={1} accessibilityRole="header">
+      <Text variant="headline" numberOfLines={1} accessibilityRole="header">
         {title}
       </Text>
       {subtitle && !big ? (
@@ -88,15 +87,15 @@ export function NavBar({ title, subtitle, variant = 'standard', onBack, backLabe
     </Animated.View>
   );
 
-  const height = android ? 64 : 44;
+  const height = 44;
 
   return (
     <Transparent.Provider value={clear ? scrolled : null}>
       <View style={{ paddingTop: top, zIndex: 10 }}>
         {/* ground: solid, or fading in over a cover */}
         <Animated.View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: bg, opacity: clear ? scrolled : 1 }} />
-        {android ? <Animated.View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: withAlpha(t.c.accent, 0.08), opacity: scrolled }} /> : null}
-        <View style={{ height, flexDirection: 'row', alignItems: 'center', paddingHorizontal: android ? 4 : 8 }}>
+        {null}
+        <View style={{ height, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8 }}>
           {centred ? (
             <>
               <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
@@ -116,7 +115,7 @@ export function NavBar({ title, subtitle, variant = 'standard', onBack, backLabe
           )}
         </View>
         {accessory ? <View style={{ paddingHorizontal: 16, paddingBottom: 8 }}>{accessory}</View> : null}
-        {!android ? <Animated.View style={{ height: 0.5, backgroundColor: t.c.rule, opacity: accessory ? 1 : scrolled }} /> : null}
+        {<Animated.View style={{ height: 0.5, backgroundColor: t.c.rule, opacity: accessory ? 1 : scrolled }} />}
       </View>
     </Transparent.Provider>
   );
@@ -124,11 +123,9 @@ export function NavBar({ title, subtitle, variant = 'standard', onBack, backLabe
 
 /** Drawn by <Screen> as the first thing in the scroll view for large, medium and search bars. */
 export function BigTitle({ title, subtitle, variant }: { title: string; subtitle?: string; variant?: NavBarVariant }) {
-  const t = useTheme();
-  const android = t.os === 'android';
   return (
-    <View style={{ paddingTop: android ? (variant === 'medium' ? 4 : 28) : 0, gap: 2 }}>
-      <Text variant={android && variant === 'medium' ? 'title' : 'largeTitle'} accessibilityRole="header">
+    <View style={{ paddingTop: 0, gap: 2 }}>
+      <Text variant="largeTitle" accessibilityRole="header">
         {title}
       </Text>
       {subtitle ? <Text variant="subhead" tone="muted">{subtitle}</Text> : null}
@@ -141,7 +138,7 @@ export type NavBarButtonProps = {
   icon?: GlyphName | ((color: string) => ReactNode);
   label?: string;
   onPress: () => void;
-  /** Bold (iOS Done) or filled (Material Save). */
+  /** Bold, for the confirming action (Done). */
   prominent?: boolean;
   disabled?: boolean;
   accessibilityLabel?: string;
@@ -151,29 +148,13 @@ export type NavBarButtonProps = {
 /** Text or icon button for a <NavBar>, with a 44 pt / 48 dp target. */
 export function NavBarButton({ icon, label, onPress, prominent, disabled, accessibilityLabel, back }: NavBarButtonProps) {
   const t = useTheme();
-  const android = t.os === 'android';
   const chip = useContext(Transparent);
-  const color = android ? (label && !icon ? t.c.accent : t.c.ink) : t.c.accent;
-  const draw = (c: string) => (typeof icon === 'function' ? icon(c) : icon ? <Glyph name={icon} color={c} size={android ? 22 : 20} /> : null);
+  const color = t.c.accent;
+  const draw = (c: string) => (typeof icon === 'function' ? icon(c) : icon ? <Glyph name={icon} color={c} size={20} /> : null);
   const iconNode = draw(color);
   const onlyIcon = !!icon && !label;
 
-  if (android && label && !icon && prominent) {
-    return (
-      <Pressable
-        onPress={onPress}
-        disabled={disabled}
-        accessibilityRole="button"
-        accessibilityState={{ disabled: !!disabled }}
-        android_ripple={{ color: 'rgba(255,255,255,0.24)' }}
-        style={{ height: 40, paddingHorizontal: 20, marginHorizontal: 4, borderRadius: 20, backgroundColor: t.c.accent, justifyContent: 'center', overflow: 'hidden', opacity: disabled ? 0.4 : 1 }}
-      >
-        <Text variant="subhead" weight="500" tone="onAccent">
-          {label}
-        </Text>
-      </Pressable>
-    );
-  }
+  
 
   return (
     <Pressable
@@ -190,12 +171,12 @@ export function NavBarButton({ icon, label, onPress, prominent, disabled, access
       style={({ pressed }) => ({
         minWidth: t.hit,
         height: t.hit,
-        paddingHorizontal: onlyIcon ? 0 : android ? 12 : 8,
+        paddingHorizontal: onlyIcon ? 0 : 8,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: back && !android && !chip ? 'flex-start' : 'center',
+        justifyContent: back && !chip ? 'flex-start' : 'center',
         gap: 2,
-        opacity: disabled ? 0.35 : pressed && !android ? 0.5 : 1,
+        opacity: disabled ? 0.35 : pressed && t.os !== 'android' ? 0.5 : 1,
       })}
     >
       {chip && iconNode ? (
@@ -211,8 +192,8 @@ export function NavBarButton({ icon, label, onPress, prominent, disabled, access
       )}
       {label ? (
         <Text
-          variant={android ? 'subhead' : 'body'}
-          weight={prominent ? '600' : android ? '500' : '400'}
+          variant="body"
+          weight={prominent ? '600' : '400'}
           style={{ color: t.c.accent }}
           numberOfLines={1}
         >

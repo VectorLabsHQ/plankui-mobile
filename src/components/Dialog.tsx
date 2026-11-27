@@ -16,10 +16,9 @@ export type DialogProps = {
   buttons: DialogButton[];
 };
 
-/** Alert dialog. iOS: compact centred card, buttons side by side. Android: Material 3 dialog, text buttons on the right. */
+/** Alert dialog: compact centred card, buttons side by side. */
 export function Dialog({ open, onClose, title, message, buttons }: DialogProps) {
   const t = useTheme();
-  const android = t.os === 'android';
   const a = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -44,10 +43,10 @@ export function Dialog({ open, onClose, title, message, buttons }: DialogProps) 
           accessibilityViewIsModal
           accessibilityRole="alert"
           style={{
-            width: android ? '100%' : 270,
-            maxWidth: android ? 560 : 270,
-            minWidth: android ? 280 : undefined,
-            borderRadius: t.look.r(android ? 28 : 14),
+            width: 270,
+            maxWidth: 270,
+            minWidth: undefined,
+            borderRadius: t.look.r(14),
             backgroundColor: t.c.surface,
             ...(t.look.name === 'brutal' ? { borderWidth: 2, borderColor: t.c.ink } : null),
             overflow: 'hidden',
@@ -55,33 +54,17 @@ export function Dialog({ open, onClose, title, message, buttons }: DialogProps) 
             transform: [{ scale: a.interpolate({ inputRange: [0, 1], outputRange: [1.1, 1] }) }],
           }}
         >
-          <View style={{ padding: android ? 24 : 16, paddingBottom: android ? 24 : 16, gap: android ? 16 : 4, alignItems: android ? 'flex-start' : 'center' }}>
-            <Text variant={android ? 'title' : 'headline'} accessibilityRole="header" center={!android}>
+          <View style={{ padding: 16, paddingBottom: 16, gap: 4, alignItems: 'center' }}>
+            <Text variant="headline" accessibilityRole="header" center>
               {title}
             </Text>
             {message ? (
-              <Text variant={android ? 'subhead' : 'footnote'} tone={android ? 'ink2' : 'ink'} center={!android}>
+              <Text variant="footnote" tone="ink" center>
                 {message}
               </Text>
             ) : null}
           </View>
-          {android ? (
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingHorizontal: 12, paddingBottom: 20, gap: 4 }}>
-              {buttons.map((b) => (
-                <Pressable
-                  key={b.label}
-                  onPress={() => press(b)}
-                  accessibilityRole="button"
-                  android_ripple={{ color: t.wash(color(b)) }}
-                  style={{ height: 40, minWidth: 48, paddingHorizontal: 12, borderRadius: 20, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}
-                >
-                  <Text variant="subhead" weight="500" style={{ color: color(b) }}>
-                    {b.label}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
-          ) : (
+          {(
             <View style={{ flexDirection: buttons.length === 2 ? 'row' : 'column', borderTopWidth: 0.5, borderColor: t.c.rule }}>
               {buttons.map((b, i) => (
                 <Pressable

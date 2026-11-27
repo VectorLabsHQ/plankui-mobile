@@ -7,36 +7,35 @@ import { Text } from './Text';
 
 export type ListSectionProps = { title?: string; footer?: string; children: ReactNode };
 
-/** iOS: inset grouped card with hairlines. Android: full-width rows under an accent label. */
+/** Inset grouped card with hairlines between rows. */
 /** Leading slot width on iOS, so titles line up whether a row has a 30 pt icon or an avatar. */
 const LEAD = 32;
 
 export function ListSection({ title, footer, children }: ListSectionProps) {
   const t = useTheme();
-  const android = t.os === 'android';
   const rows = Children.toArray(children).filter(isValidElement);
   return (
-    // Space after each section: iOS groups sit ~32 pt apart, Material lists ~24 dp (with the screen's 16 gap).
-    <View style={{ marginHorizontal: android ? -16 : 0, marginBottom: android ? 8 : 16 }}>
+    // Space after each section: groups sit ~32 pt apart (with the screen's 16 gap).
+    <View style={{ marginHorizontal: 0, marginBottom: 16 }}>
       {title ? (
         <Text
-          variant={android ? 'subhead' : 'footnote'}
-          tone={android ? 'accent' : 'muted'}
-          weight={android ? '500' : undefined}
+          variant="footnote"
+          tone="muted"
+          weight={undefined}
           accessibilityRole="header"
-          style={{ paddingHorizontal: 16, paddingBottom: android ? 4 : 6, textTransform: android ? 'none' : 'uppercase' }}
+          style={{ paddingHorizontal: 16, paddingBottom: 6, textTransform: 'uppercase' }}
         >
           {title}
         </Text>
       ) : null}
       {/* outer view carries the look's shadow, inner one clips the rows to the corners */}
-      <View style={android ? null : [t.look.card, { borderRadius: t.look.r(12) }]}>
-        <View style={android ? null : { borderRadius: t.look.r(12) - Number(t.look.card.borderWidth ?? 0), overflow: 'hidden' }}>
+      <View style={[t.look.card, { borderRadius: t.look.r(12) }]}>
+        <View style={{ borderRadius: t.look.r(12) - Number(t.look.card.borderWidth ?? 0), overflow: 'hidden' }}>
         {rows.map((row, i) => (
           <Fragment key={row.key ?? i}>
             {row}
             {/* iOS insets the hairline to where the row's text starts, past any icon */}
-            {i < rows.length - 1 && !android ? <View style={{ height: 0.5, marginLeft: (row.props as { left?: unknown }).left ? 16 + LEAD + 12 : 16, backgroundColor: t.c.rule }} /> : null}
+            {i < rows.length - 1 ? <View style={{ height: 0.5, marginLeft: (row.props as { left?: unknown }).left ? 16 + LEAD + 12 : 16, backgroundColor: t.c.rule }} /> : null}
           </Fragment>
         ))}
         </View>
@@ -68,17 +67,16 @@ export type ListItemProps = {
 
 export function ListItem({ title, subtitle, left, right, value, onPress, chevron, destructive, selected }: ListItemProps) {
   const t = useTheme();
-  const android = t.os === 'android';
-  const showChevron = !android && (chevron ?? (!!onPress && selected === undefined && !destructive));
+  const showChevron = (chevron ?? (!!onPress && selected === undefined && !destructive));
   const body = (
     <>
-      {left ? <View style={{ minWidth: android ? 40 : LEAD, alignItems: 'center' }}>{left}</View> : null}
+      {left ? <View style={{ minWidth: LEAD, alignItems: 'center' }}>{left}</View> : null}
       <View style={{ flex: 1, gap: 2 }}>
         <Text variant="body" style={destructive ? { color: t.c.danger } : null} numberOfLines={1}>
           {title}
         </Text>
         {subtitle ? (
-          <Text variant={android ? 'subhead' : 'subhead'} tone="muted" numberOfLines={2}>
+          <Text variant="subhead" tone="muted" numberOfLines={2}>
             {subtitle}
           </Text>
         ) : null}
@@ -90,12 +88,12 @@ export function ListItem({ title, subtitle, left, right, value, onPress, chevron
     </>
   );
   const row = {
-    minHeight: subtitle ? (android ? 72 : 60) : android ? 56 : 44,
+    minHeight: subtitle ? (60) : 44,
     paddingHorizontal: 16,
-    paddingVertical: android ? 8 : 10,
+    paddingVertical: 10,
     flexDirection: 'row' as const,
     alignItems: 'center' as const,
-    gap: android ? 16 : 12,
+    gap: 12,
   };
   if (!onPress) return <View style={row}>{body}</View>;
   return (
@@ -108,7 +106,7 @@ export function ListItem({ title, subtitle, left, right, value, onPress, chevron
       accessibilityLabel={[title, subtitle, value].filter(Boolean).join(', ')}
       accessibilityState={selected !== undefined ? { selected } : undefined}
       android_ripple={{ color: t.wash(t.c.ink) }}
-      style={({ pressed }) => [row, pressed && !android && { backgroundColor: t.c.fill }]}
+      style={({ pressed }) => [row, pressed && t.os !== 'android' && { backgroundColor: t.c.fill }]}
     >
       {body}
     </Pressable>
